@@ -1,4 +1,7 @@
+from flask import Flask
 
-class Server:
-    def __init__(self):
-        pass
+app = Flask(__name__)
+
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
