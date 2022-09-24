@@ -2,3 +2,19 @@ html, body {
     font-family: Arial, Helvetica, sans-serif;
     height: 100%;
 }
+
+.work-block {
+    background: #0;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+
+
+    width: 700px;
+    padding: 25px;
+    margin: 25px auto;
+
+    cursor: pointer;
+}
+.work-block:hover {
+background: #0078BF;
+color: #fff;
+}

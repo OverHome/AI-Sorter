@@ -2,18 +2,22 @@ import os
 from flask import Flask, render_template
 import sqlite3
 
-DATABASE = "/tmp/sorter.db"
+DATABASE = "/tmp/AISorter.db"
 DEBUG = True
 SECRET_KEY = "veq7rcm3136bcr4310vb6x32zfhvbwk"
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-app.config.update(dict(DATABASE=os.path.join(app.root_path, "sorter.db")))
+app.config.update(dict(DATABASE=os.path.join(app.root_path, "../DataBase/AISorter.db")))
 
 @app.route("/")
-def hello_world():
-    return render_template("index.html")
+def index():
+    db = connect_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * from data_jobs")
+    total_rows = cursor.fetchall()
+    return render_template("index.html", total_rows=total_rows)
 
 
 def connect_db():
