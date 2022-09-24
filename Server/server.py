@@ -2,7 +2,7 @@ from crypt import methods
 import os
 from flask import Flask, render_template, redirect, request
 import sqlite3
-from ..AI.model import Ai
+#from AI.model import Ai
 
 DATABASE = "/tmp/AISorter.db"
 DEBUG = True
@@ -29,26 +29,26 @@ def conclusion():
     citizenship = request.form["citizenship"]
     age = request.form["age"]
     salary = request.form["salary"]
-    langs = request.form["langs"]
+    #langs = request.form["langs"]
     driver_license = request.form["driverlicense"]
     subway = request.form["subway"]
     skills = request.form["skills"]
     employment = request.form["employment"]
     shedule = request.form["shedule"]
     candidate_region = request.form["candidateregion"]
-    date_created = request.form["datecreated"]
+    #date_created = request.form["datecreated"]
     job_id = request.form["jobid"]
-    candidate_status_id = request.form["candidatestatusid"]
-    status = request.form["status"]
+    #candidate_status_id = request.form["candidatestatusid"]
+    #status = request.form["status"]
     university = request.form["university"]
     faculty = request.form["faculty"]
-    graduateyear = request.form["graduateyear"]
+    #graduateyear = request.form["graduateyear"]
     position = request.form["position"]
     fromyear = request.form["fromyear"]
     toyear = request.form["toyear"]
 
-    ai = Ai()
-    ai.predict()
+    #ai = Ai()
+    #ai.predict()
 
     return "<h1>0.98</h1>"
 
