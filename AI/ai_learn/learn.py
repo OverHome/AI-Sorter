@@ -6,7 +6,8 @@ from .utils import preprocess_all_data
 
 all_data = preprocess_all_data(pd.read_csv('data_candidates.csv', sep=';', header=None),
                                pd.read_csv('data_jobs.csv', sep=';', header=None),
-                               pd.read_csv('data_candidates_education.csv', sep=';', header=None))
+                               pd.read_csv('data_candidates_education.csv', sep=';', header=None),
+                               pd.read_csv('data_candidates_work.csv', sep=';', header=None))
 
 mask = np.random.choice([True, False], size=len(all_data), p=[0.05, 0.95])
 
