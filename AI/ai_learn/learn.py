@@ -2,9 +2,14 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from .utils import preprocess_all_data
 
-training_data = []#вход
-training_labels = []#выход
+all_data = preprocess_all_data(pd.read_csv('data_candidates.csv', sep=';', header=None),
+                               pd.read_csv('data_jobs.csv', sep=';', header=None),
+                               pd.read_csv('data_candidates_education.csv', sep=';', header=None))
+
+training_data = np.asarray(all_data[all_data.columns[:-1]])
+training_labels = np.asarray(all_data['status'])
 test_data = []#вход
 test_labels = []#выход
 

@@ -7,13 +7,13 @@ def cit_new(x):
         return 'nan'
     else:
         return 'other'
-    
+
 def new_age(x):
     if x >= 18 and x <= 100:
         return x
     else:
         return 0
-    
+
 def new_lang(x):
     rus = str(x).lower().find('русский')
     if 'родной' in str(x)[rus:rus+20].lower():
@@ -22,7 +22,7 @@ def new_lang(x):
         return 'nan'
     else:
         return 'other'
-    
+
 def new_lic(x):
     if str(x).lower() == 'nan':
         return 'nan'
@@ -43,7 +43,7 @@ def new_lic(x):
                 return 'empty'
         else:
             return ans
-        
+
 def new_lic_v2(x):
     i = str(x).lower().find('категор')
     if str(x) == 'nan':
@@ -65,7 +65,7 @@ def new_lic_v2(x):
                 return 'nan'
         else:
             return ans
-        
+
 def new_stat(x):
     if str(x).lower() == 'nan':
         return 'nan'
@@ -76,7 +76,7 @@ def new_stat(x):
             return 'declined'
         else:
             return 'other'
-        
+
 def get_dummies_dl(x):
     l = [0, 0, 0, 0]
     if 'A' in x:
@@ -88,7 +88,7 @@ def get_dummies_dl(x):
     if 'D' in x:
         l[3] = 1
     return pd.Series(l)
-        
+
 def preprocess_data(df):
     df['date'] = df[13]
     df['id'] = df[0]
@@ -107,9 +107,9 @@ def preprocess_data(df):
     df['job_id'] = df[14]
     df['status'] = df[16].apply(new_stat)
     df.drop(list(range(17)), axis=1, inplace=True)
-    
+
     data = df[(df.date.apply(lambda x: pd.to_datetime(x))>=pd.to_datetime('2021-01-01'))&(df.status.isin(['accepted', 'declined']))]
-    
+
     sex = pd.get_dummies(data.sex, drop_first=True, prefix='sex')
     citizenship = pd.get_dummies(data.citizenship, drop_first=True, prefix='citiz')
     lang = pd.get_dummies(data.lang, drop_first=True, prefix='lang')
@@ -117,7 +117,7 @@ def preprocess_data(df):
     graf_2 = pd.get_dummies(data.graf_2, drop_first=False, prefix='graf_2')
     dl = data['drive_lic'].apply(get_dummies_dl)
     dl.columns = ['dl_A', 'dl_B', 'dl_C', 'dl_D']
-    
+
     return pd.concat([data['id'], sex, citizenship, lang, dl, graf_1, graf_2, data[['age', 'salary', 'region', 'job_id', 'status']]], axis=1)
 
 def new_educ(x):
@@ -129,7 +129,7 @@ def new_educ(x):
         return 'sch'
     else:
         return 'other'
-    
+
 def remove_educ(x):
     nl = [0, 0, 0, 0]
     if x.educ_univ > 0:
@@ -141,15 +141,15 @@ def remove_educ(x):
     elif x.educ_other > 0:
         nl[3] = 1
     return pd.Series(nl)
-    
+
 def preprocess_educ(df):
     df['id'] = df[0]
     df['educ'] = df[1].apply(new_educ)
-    
+
     df = pd.concat([df['id'], pd.get_dummies(df.educ, prefix='educ')], axis=1)
     df = df.groupby('id').sum().reset_index()
     df[['educ_univ', 'educ_col', 'educ_sch', 'educ_other']] = df.apply(remove_educ, axis=1)
-    
+
     return df
 
 def new_cat(x):
@@ -193,13 +193,17 @@ def preprocess_job(df):
     df['job_id'] = df[0]
     df['region'] = df[3]
     df['job'] = df.apply(new_cat, axis=1)
-    
+
     job = df.job.apply(get_dummies_job)
     job.columns = ['job_B', 'job_C', 'job_D']
-    
+
     return pd.concat([df[['job_id', 'region']], job], axis=1)
 
-def preprocess_all_data(df, job, educ):
+def preprocess_all_data(df, jobs, educ):
+    df = preprocess_data(df)
+    jobs = preprocess_job(jobs)
+    educ = preprocess_educ(educ)
+
     merge = pd.merge(df, educ, on='id', how='left')
     merge = pd.merge(merge, jobs, on='job_id')
     merge['same_region'] = (merge.region_x==merge.region_y).astype(int)
@@ -207,5 +211,5 @@ def preprocess_all_data(df, job, educ):
     merge.drop(['region_x', 'region_y', 'id', 'job_id', 'status'], axis=1, inplace=True)
     merge.fillna(0, inplace=True)
     merge = merge.rename(columns={'status_v2': 'status'})
-    
+
     return merge
