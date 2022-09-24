@@ -199,12 +199,39 @@ def preprocess_job(df):
 
     return pd.concat([df[['job_id', 'region']], job], axis=1)
 
-def preprocess_all_data(df, jobs, educ):
+def new_exp(x):
+    if any(e in str(x).lower() for e in ['водитель', 'экспедит', 'такси', 'курьер', 'перегон']):
+        return 'drive'
+    elif any(e in str(x).lower() for e in ['авто', 'механик', 'инженер', 'техник']):
+        return 'mech'
+    else:
+        return 'other'
+
+def count_exp(x):
+    if x[2] in [-1, 0]:
+        return 0
+    elif x[4] in [-1, 0]:
+        return (2022 - x[2])*12 + 8 - x[3]
+    else:
+        return (x[4] - x[2])*12 + x[5] - x[3]
+
+def preprocess_exp(df):
+    df['job'] = df[1].apply(new_exp)
+    df['exp'] = df.apply(count_exp, axis=1)
+    df['id'] = df[0]
+    return df[['id', 'job', 'exp']].drop_duplicates().groupby(['id', 'job'])['exp'].sum().reset_index().pivot_table(index='id', columns='job', values='exp').drop('other', axis=1).reset_index().fillna(0)
+
+def preprocess_all_data(df, jobs, educ, work):
     df = preprocess_data(df)
     jobs = preprocess_job(jobs)
     educ = preprocess_educ(educ)
+    work = preprocess_work(work)
+
+    work['drive'] = work.drive.apply(lambda x: x/600 if x<=600 else 1)
+    work['mech'] = work.mech.apply(lambda x: x/600 if x<=600 else 1)
 
     merge = pd.merge(df, educ, on='id', how='left')
+    merge = pd.merge(merge, work, on='id', how='left')
     merge = pd.merge(merge, jobs, on='job_id')
     merge['same_region'] = (merge.region_x==merge.region_y).astype(int)
     merge['status_v2'] = merge.status.apply(lambda x: 1 if x=='accepted' else 0)
