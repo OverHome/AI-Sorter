@@ -1,5 +1,6 @@
+from crypt import methods
 import os
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 import sqlite3
 
 DATABASE = "/tmp/AISorter.db"
@@ -20,8 +21,25 @@ def index():
     total_rows = cursor.fetchall()
     return render_template("index.html", total_rows=total_rows)
 
-@app.route("/conclusion/")
+@app.route("/conclusion/", methods=["POST"])
 def conclusion():
+    
+    sex = request.form["sex"]
+    citizenship = request.form["citizenship"]
+    age = request.form["age"]
+    salary = request.form["salary"]
+    langs = request.form["langs"]
+    driver_license = request.form["driverlicense"]
+    subway = request.form["subway"]
+    skills = request.form["skills"]
+    employment = request.form["employment"]
+    shedule = request.form["shedule"]
+    candidate_region = request.form["candidateregion"]
+    date_created = request.form["datecreated"]
+    job_id = request.form["jobid"]
+    candidate_status_id = request.form["candidatestatusid"]
+    status = request.form["status"]
+
     return "<h1>0.98</h1>"
 
 @app.route("/work/<work_id>")
