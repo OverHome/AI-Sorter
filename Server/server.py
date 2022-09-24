@@ -19,6 +19,13 @@ def index():
     total_rows = cursor.fetchall()
     return render_template("index.html", total_rows=total_rows)
 
+@app.route("/work/<work_id>/")
+def user_info(work_id):
+    return "<h1>Form</h1>"
+
+@app.route("/conclusion/")
+def conclusion():
+    return "<h1>0.98</h1>"
 
 def connect_db():
     connection = sqlite3.connect(app.config["DATABASE"])
