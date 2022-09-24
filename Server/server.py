@@ -2,6 +2,7 @@ from crypt import methods
 import os
 from flask import Flask, render_template, redirect, request
 import sqlite3
+from ..AI.model import Ai
 
 DATABASE = "/tmp/AISorter.db"
 DEBUG = True
@@ -23,7 +24,7 @@ def index():
 
 @app.route("/conclusion/", methods=["POST"])
 def conclusion():
-    
+
     sex = request.form["sex"]
     citizenship = request.form["citizenship"]
     age = request.form["age"]
@@ -39,6 +40,15 @@ def conclusion():
     job_id = request.form["jobid"]
     candidate_status_id = request.form["candidatestatusid"]
     status = request.form["status"]
+    university = request.form["university"]
+    faculty = request.form["faculty"]
+    graduateyear = request.form["graduateyear"]
+    position = request.form["position"]
+    fromyear = request.form["fromyear"]
+    toyear = request.form["toyear"]
+
+    ai = Ai()
+    ai.predict()
 
     return "<h1>0.98</h1>"
 
