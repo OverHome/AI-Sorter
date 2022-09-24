@@ -1,5 +1,7 @@
 import tensorflow as tf
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 mnist = tf.keras.datasets.mnist
 
@@ -16,11 +18,20 @@ model.compile(optimizer = tf.keras.optimizers.Adam(),
               loss = 'sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
-model.fit(training_data, training_labels, epochs=5)
+history = model.fit(training_data[:6000], training_labels[:6000], epochs=50)
 
 model.evaluate(test_data, test_labels)
 
-predictions = model.predict(test_data)
+predictions = model.predict(test_data) # test
+print(history.history.keys())
+
+
 np.set_printoptions(suppress=True)
+plt.plot(history.history['accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
 print(test_labels[0])
 print(predictions[0])
