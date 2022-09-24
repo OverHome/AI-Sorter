@@ -8,10 +8,12 @@ all_data = preprocess_all_data(pd.read_csv('data_candidates.csv', sep=';', heade
                                pd.read_csv('data_jobs.csv', sep=';', header=None),
                                pd.read_csv('data_candidates_education.csv', sep=';', header=None))
 
-training_data = np.asarray(all_data[all_data.columns[:-1]])
-training_labels = np.asarray(all_data['status'])
-test_data = []#вход
-test_labels = []#выход
+mask = np.random.choice([True, False], size=len(all_data), p=[0.05, 0.95])
+
+training_data = np.asarray(all_data[~mask][all_data.columns[:-1]])
+training_labels = np.asarray(all_data[~mask]['status'])
+test_data = np.asarray(all_data[mask][all_data.columns[:-1]])
+test_labels = np.asarray(all_data[mask]['status'])
 
 model = tf.keras.Sequential([
     tf.keras.layers.Dense(6, activation=tf.nn.relu, input_shape=(32, )),
