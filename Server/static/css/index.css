@@ -3,18 +3,100 @@ html, body {
     height: 100%;
 }
 
-.work-block {
+.works-block {
     background: #0;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
-
-
     width: 700px;
     padding: 25px;
     margin: 25px auto;
-
     cursor: pointer;
 }
-.work-block:hover {
-background: #0078BF;
-color: #fff;
+
+.works-block:hover {
+    background: #0078BF;
+    color: #fff;
+}
+
+.work-block {
+    background: #0;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    width: 900px;
+    height: auto;
+    padding: 25px;
+    margin: 25px auto;
+}
+
+.resume{
+    background: #0;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    width: 900px;
+    height: auto;
+    padding: 25px;
+    margin: 15px auto;
+}
+.data{
+    opacity: 1;
+}
+.pesontedan {
+  position: relative;
+  margin-bottom: 1px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.pesontedan_input {
+  position: absolute;
+  opacity: 0;
+  z-index: -1;
+}
+
+.pesontedan label {
+  position: relative;
+  display: block;
+  padding: 0 0 0 1em;
+  line-height: 3;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+.pesontedan-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .40s;
+  font-size: 14px;
+}
+
+.pesontedan-content p {
+  margin: 1em;
+}
+/* :checked */
+.pesontedan input:checked ~ .pesontedan-content {
+  max-height: 100vh;
+}
+
+/* Icon */
+.pesontedan label::after {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: block;
+  width: 3em;
+  height: 3em;
+  line-height: 3;
+  text-align: center;
+  -webkit-transition: all .40s;
+  -o-transition: all .40s;
+  transition: all .40s;
+}
+.pesontedan input[type=checkbox] + label::after {
+  content: "+";
+}
+.pesontedan input[type=radio] + label::after {
+  content: "\25BC";
+}
+.pesontedan input[type=checkbox]:checked + label::after {
+  transform: rotate(315deg);
+}
+.pesontedan input[type=radio]:checked + label::after {
+  transform: rotateX(180deg);
 }

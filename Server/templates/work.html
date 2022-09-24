@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link type="text/css" href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet" />
+    <title>Title</title>
+</head>
+    <body>
+        <div class="work-block">
+            <h1>{{work[2]}}</h1>
+            г. {{work[3]}}
+            {{work[4]|safe}}
+        </div>
+
+        <div class="resume">
+            <div class="pesontedan">
+                <input id="pesontedan-one" class="pesontedan_input" type="checkbox" name="pesontedans">
+                <label for="pesontedan-one">Оставить резюме</label>
+                <div class="pesontedan-content">
+                    <form class="data" action="/conclusion" method="POST">
+                        <label>Ваше имя:</label>
+                        <input type="text" id="name" name="name" required>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
