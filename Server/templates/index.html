@@ -1,2 +1,17 @@
-<link type="text/css" href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet" />
-<h1>Title</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link type="text/css" href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet" />
+    <title>Title</title>
+</head>
+    <body>
+        {% for row in total_rows %}
+        <div class="work-block", onClick="document.location='/work/{{row[0]}}'">
+            <h2>{{row[2]}}</h2>
+            г. {{row[3]}}
+        </div>
+
+        {% endfor %}
+    </body>
+</html>

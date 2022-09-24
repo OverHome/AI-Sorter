@@ -12,12 +12,12 @@ app.config.from_object(__name__)
 app.config.update(dict(DATABASE=os.path.join(app.root_path, "../DataBase/AISorter.db")))
 
 @app.route("/")
-def hello_world():
+def index():
     db = connect_db()
-    #db.cursor
-    db.commit()
-    db.close()
-    return render_template("index.html")
+    cursor = db.cursor()
+    cursor.execute("SELECT * from data_jobs")
+    total_rows = cursor.fetchall()
+    return render_template("index.html", total_rows=total_rows)
 
 
 def connect_db():
