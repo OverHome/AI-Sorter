@@ -18,8 +18,95 @@
                 <label for="pesontedan-one">Оставить резюме</label>
                 <div class="pesontedan-content">
                     <form class="data" action="/conclusion" method="POST">
-                        <label>Ваше имя:</label>
-                        <input type="text" id="name" name="name" required>
+                        <p><input name="id" type="hidden" value="1337"></p>
+                        <p><input name="textfield" type="hidden" value="{{work[3]}}"></p>
+
+                        <div class="frame">
+                            <label>Пол:</label>
+                            <select name="sex">
+                               <option value="2">Мужский</option>
+                               <option value="1">Женский</option>
+                            </select>
+
+                            <label>Гражданство:</label>
+                            <select name="citizenship">
+                                <option value="1">Россия</option>
+                                <option value="0">Не Россия</option>
+                            </select>
+
+                            <label>Возраст:</label>
+                            <select name="age">
+                                <option selected value="18">18</option>
+                                {% for i in range(19, 100) %}
+                                <option value="{{i}}">{{i}}</option>
+                                {% endfor %}
+                           </select>
+
+                            <label>Желаемая зарплата:</label>
+                            <input name="Salary" type="text">
+
+                            <label>Категория прав:</label>
+                            <select name="driverLicense">
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+
+                            <label>Метро:</label>
+                            <input name="subway" type="text">
+
+                            <label>Навыки:</label>
+                            <input name="skills" type="text">
+
+                            <label>Формат нагрузки:</label>
+                            <select name="employment">
+                                <option value="Full">Full</option>
+                                <option value="Part">Part</option>
+                                <option value="Look-out">Look-out</option>
+                                <option value="Change">Change</option>
+                                <option value="Not full">Not full</option>
+                                <option value="Does not matter">Does not matter</option>
+                            </select>
+
+                            <label>Формат занятости:</label>
+                            <select name="shedule">
+                                <option value="Full">Full</option>
+                                <option value="Flex">Flex</option>
+                                <option value="Project">Project</option>
+                                <option value="Stage">Stage</option>
+                                <option value="Volunteering<">Volunteering</option>
+                                <option value="does not matter">does not matter</option>
+                            </select>
+                        </div>
+
+
+
+                        <div>
+                            <label>Регион:</label>
+                            <input name="candidateregion" type="text">
+
+                            <label>Образовательная организация:</label>
+                            <input name="university" type="text">
+
+                            <label>Профиль:</label>
+                            <input name="faculty" type="text">
+
+                            <label>Наилучший опыт работы:</label>
+                            <input name="position" type="text">
+
+                            <label>Год начала работы:</label>
+                            <input name="fromyear" type="text">
+
+                            <label>Год окончания:</label>
+                            <input name="toyear" type="text">
+                        </div>
+
+
+                        <p>
+                            <input type="submit" value="Отправить">
+                            <input type="reset" value="Очистить">
+                        </p>
                     </form>
                 </div>
             </div>
