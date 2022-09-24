@@ -89,8 +89,10 @@ def get_dummies_dl(x):
         l[3] = 1
     return pd.Series(l)
 
-def preprocess_data(df):
-    df['date'] = df[13]
+def preprocess_data(df, test):
+    if not test:
+        df['date'] = df[13]
+        df['status'] = df[16].apply(new_stat)
     df['id'] = df[0]
     df['sex'] = df[2]
     df['citizenship'] = df[3].apply(cit_new)
@@ -105,11 +107,11 @@ def preprocess_data(df):
     df['graf_2'] = df[11]
     df['region'] = df[12]
     df['job_id'] = df[14]
-    df['status'] = df[16].apply(new_stat)
     df.drop(list(range(17)), axis=1, inplace=True)
-
-    data = df[(df.date.apply(lambda x: pd.to_datetime(x))>=pd.to_datetime('2021-01-01'))&(df.status.isin(['accepted', 'declined']))]
-
+    if not test:
+        data = df[(df.date.apply(lambda x: pd.to_datetime(x))>=pd.to_datetime('2021-01-01'))&(df.status.isin(['accepted', 'declined']))]
+    else:
+        data = df.copy()
     sex = pd.get_dummies(data.sex, drop_first=True, prefix='sex')
     citizenship = pd.get_dummies(data.citizenship, drop_first=True, prefix='citiz')
     lang = pd.get_dummies(data.lang, drop_first=True, prefix='lang')
@@ -117,8 +119,10 @@ def preprocess_data(df):
     graf_2 = pd.get_dummies(data.graf_2, drop_first=False, prefix='graf_2')
     dl = data['drive_lic'].apply(get_dummies_dl)
     dl.columns = ['dl_A', 'dl_B', 'dl_C', 'dl_D']
-
-    return pd.concat([data['id'], sex, citizenship, lang, dl, graf_1, graf_2, data[['age', 'salary', 'region', 'job_id', 'status']]], axis=1)
+    if not test:
+        return pd.concat([data['id'], sex, citizenship, lang, dl, graf_1, graf_2, data[['age', 'salary', 'region', 'job_id', 'status']]], axis=1)
+    else:
+        return pd.concat([data['id'], sex, citizenship, lang, dl, graf_1, graf_2, data[['age', 'salary', 'region', 'job_id']]], axis=1)
 
 def new_educ(x):
     if 'университет' in x.lower() or 'институт' in x.lower():
@@ -221,11 +225,11 @@ def preprocess_exp(df):
     df['id'] = df[0]
     return df[['id', 'job', 'exp']].drop_duplicates().groupby(['id', 'job'])['exp'].sum().reset_index().pivot_table(index='id', columns='job', values='exp').drop('other', axis=1).reset_index().fillna(0)
 
-def preprocess_all_data(df, jobs, educ, work):
-    df = preprocess_data(df)
+def preprocess_all_data(df, jobs, educ, work, test = False):
+    df = preprocess_data(df, test)
     jobs = preprocess_job(jobs)
     educ = preprocess_educ(educ)
-    work = preprocess_work(work)
+    work = preprocess_exp(work)
 
     work['drive'] = work.drive.apply(lambda x: x/600 if x<=600 else 1)
     work['mech'] = work.mech.apply(lambda x: x/600 if x<=600 else 1)
@@ -234,9 +238,12 @@ def preprocess_all_data(df, jobs, educ, work):
     merge = pd.merge(merge, work, on='id', how='left')
     merge = pd.merge(merge, jobs, on='job_id')
     merge['same_region'] = (merge.region_x==merge.region_y).astype(int)
-    merge['status_v2'] = merge.status.apply(lambda x: 1 if x=='accepted' else 0)
-    merge.drop(['region_x', 'region_y', 'id', 'job_id', 'status'], axis=1, inplace=True)
-    merge.fillna(0, inplace=True)
-    merge = merge.rename(columns={'status_v2': 'status'})
-
+    if not test:
+        merge['status_v2'] = merge.status.apply(lambda x: 1 if x=='accepted' else 0)
+        merge.drop(['region_x', 'region_y', 'id', 'job_id', 'status'], axis=1, inplace=True)
+        merge.fillna(0, inplace=True)
+        merge = merge.rename(columns={'status_v2': 'status'})
+    else:
+        merge.drop(['region_x', 'region_y', 'id', 'job_id'], axis=1, inplace=True)
+        merge.fillna(0, inplace=True)
     return merge
