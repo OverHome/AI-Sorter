@@ -90,6 +90,7 @@ def get_dummies_dl(x):
     return pd.Series(l)
 
 def preprocess_data(df, test=False):
+    n = len(df.columns)
     if not test:
         df['date'] = df[13]
         df['job_id'] = df[14]
@@ -107,7 +108,7 @@ def preprocess_data(df, test=False):
     df['graf_1'] = df[10]
     df['graf_2'] = df[11]
     df['region'] = df[12]
-    df.drop(list(range(17)), axis=1, inplace=True)
+    df.drop(list(range(n)), axis=1, inplace=True)
     if not test:
         data = df[(df.date.apply(lambda x: pd.to_datetime(x))>=pd.to_datetime('2021-01-01'))&(df.status.isin(['accepted', 'declined']))]
     else:
@@ -122,7 +123,7 @@ def preprocess_data(df, test=False):
     if not test:
         return pd.concat([data['id'], sex, citizenship, lang, dl, graf_1, graf_2, data[['age', 'salary', 'region', 'job_id', 'status']]], axis=1)
     else:
-        return pd.concat([data['id'], sex, citizenship, lang, dl, graf_1, graf_2, data[['age', 'salary', 'region', 'job_id']]], axis=1)
+        return pd.concat([data['id'], sex, citizenship, lang, dl, graf_1, graf_2, data[['age', 'salary', 'region']]], axis=1)
 
 def new_educ(x):
     if 'университет' in x.lower() or 'институт' in x.lower():
@@ -225,7 +226,7 @@ def preprocess_exp(df):
     df['id'] = df[0]
     return df[['id', 'job', 'exp']].drop_duplicates().groupby(['id', 'job'])['exp'].sum().reset_index().pivot_table(index='id', columns='job', values='exp').drop('other', axis=1).reset_index().fillna(0)
 
-def preprocess_all_data(df, jobs, educ, work, test):
+def preprocess_all_data(df, jobs, educ, work):
     df = preprocess_data(df)
     jobs = preprocess_job(jobs)
     educ = preprocess_educ(educ)
@@ -245,6 +246,7 @@ def preprocess_all_data(df, jobs, educ, work, test):
     return merge
 
 def preprocess_test_data(df, jobs, educ, work):
+    test = True
     df = preprocess_data(df, test)
     jobs = preprocess_job(jobs)
     educ = preprocess_educ(educ)
@@ -263,6 +265,7 @@ def preprocess_test_data(df, jobs, educ, work):
         merge_new = pd.concat([merge_new, tmp])
 
     merge = pd.merge(merge_new, jobs, on='job_id')
-    merge.drop(['region_x', 'region_y', 'id'], axis=1, inplace=True)
+    merge['same_region'] = (merge.region_x == merge.region_y).astype(int)
+    merge.drop(['region_x', 'region_y'], axis=1, inplace=True)
     merge.fillna(0, inplace=True)
     return merge
