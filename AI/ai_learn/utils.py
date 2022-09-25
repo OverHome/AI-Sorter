@@ -89,9 +89,10 @@ def get_dummies_dl(x):
         l[3] = 1
     return pd.Series(l)
 
-def preprocess_data(df, test):
+def preprocess_data(df, test=False):
     if not test:
         df['date'] = df[13]
+        df['job_id'] = df[14]
         df['status'] = df[16].apply(new_stat)
     df['id'] = df[0]
     df['sex'] = df[2]
@@ -106,7 +107,6 @@ def preprocess_data(df, test):
     df['graf_1'] = df[10]
     df['graf_2'] = df[11]
     df['region'] = df[12]
-    df['job_id'] = df[14]
     df.drop(list(range(17)), axis=1, inplace=True)
     if not test:
         data = df[(df.date.apply(lambda x: pd.to_datetime(x))>=pd.to_datetime('2021-01-01'))&(df.status.isin(['accepted', 'declined']))]
@@ -225,8 +225,8 @@ def preprocess_exp(df):
     df['id'] = df[0]
     return df[['id', 'job', 'exp']].drop_duplicates().groupby(['id', 'job'])['exp'].sum().reset_index().pivot_table(index='id', columns='job', values='exp').drop('other', axis=1).reset_index().fillna(0)
 
-def preprocess_all_data(df, jobs, educ, work, test = False):
-    df = preprocess_data(df, test)
+def preprocess_all_data(df, jobs, educ, work, test):
+    df = preprocess_data(df)
     jobs = preprocess_job(jobs)
     educ = preprocess_educ(educ)
     work = preprocess_exp(work)
@@ -238,12 +238,31 @@ def preprocess_all_data(df, jobs, educ, work, test = False):
     merge = pd.merge(merge, work, on='id', how='left')
     merge = pd.merge(merge, jobs, on='job_id')
     merge['same_region'] = (merge.region_x==merge.region_y).astype(int)
-    if not test:
-        merge['status_v2'] = merge.status.apply(lambda x: 1 if x=='accepted' else 0)
-        merge.drop(['region_x', 'region_y', 'id', 'job_id', 'status'], axis=1, inplace=True)
-        merge.fillna(0, inplace=True)
-        merge = merge.rename(columns={'status_v2': 'status'})
-    else:
-        merge.drop(['region_x', 'region_y', 'id', 'job_id'], axis=1, inplace=True)
-        merge.fillna(0, inplace=True)
+    merge['status_v2'] = merge.status.apply(lambda x: 1 if x=='accepted' else 0)
+    merge.drop(['region_x', 'region_y', 'id', 'job_id', 'status'], axis=1, inplace=True)
+    merge.fillna(0, inplace=True)
+    merge = merge.rename(columns={'status_v2': 'status'})
+    return merge
+
+def preprocess_test_data(df, jobs, educ, work):
+    df = preprocess_data(df, test)
+    jobs = preprocess_job(jobs)
+    educ = preprocess_educ(educ)
+    work = preprocess_exp(work)
+
+    work['drive'] = work.drive.apply(lambda x: x/600 if x<=600 else 1)
+    work['mech'] = work.mech.apply(lambda x: x/600 if x<=600 else 1)
+
+    merge = pd.merge(df, educ, on='id', how='left')
+    merge = pd.merge(merge, work, on='id', how='left')
+
+    merge_new = pd.DataFrame()
+    for i in range(10):
+        tmp = merge.copy()
+        tmp['job_id'] = jobs.job_id.iloc[i]
+        merge_new = pd.concat([merge_new, tmp])
+
+    merge = pd.merge(merge_new, jobs, on='job_id')
+    merge.drop(['region_x', 'region_y', 'id', 'job_id'], axis=1, inplace=True)
+    merge.fillna(0, inplace=True)
     return merge
