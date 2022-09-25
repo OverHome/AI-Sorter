@@ -32,12 +32,12 @@ def new_exp(x):
     else:
         return 'other'
 
-def new_cat(x):
+def new_cat(name):
     if 'автобус' in name:
         return 'D'
     elif 'экспед' in name or 'груз' in name or 'фур' in name:
         return 'C'
-    if 'водитель' in name and (ans == '' or ans == 'E'):
+    if 'водитель' in name:
         return 'B'
 
 @app.route("/")
@@ -71,20 +71,13 @@ def conclusion():
     position = request.form["position"]
     fromyear = request.form["fromyear"]
     toyear = request.form["toyear"]
-    ai = Ai()
-    ai.predict()
-
-    db = connect_db()
-    cursor = db.cursor()
-    cursor.execute(f"SELECT * FROM data_jobs WHERE id={job_id}")
-    work = cursor.fetchone()
 
     l = ['sex_1', 'sex_2', 'citiz_other', 'citiz_rf', 'lang_other', 'lang_rus', 'dl_A', 'dl_B', 'dl_C', 'dl_D',
      'graf_1_Change', 'graf_1_Full', 'graf_1_Look-out', 'graf_1_Not full', 'graf_1_Part', 'graf_1_does not matter',
      'graf_2_Flex', 'graf_2_Full', 'graf_2_Project', 'graf_2_Stage', 'graf_2_Volunteering', 'graf_2_does not matter',
      'age', 'salary', 'educ_col', 'educ_other', 'educ_sch', 'educ_univ', 'drive', 'mech', 'job_B', 'job_C', 'job_D',
      'same_region', 'id', 'job_id']
-    data = [0]*len(l)
+    data = [[0]*len(l)]
 
     df = pd.DataFrame(data, columns=l)
 
@@ -100,12 +93,12 @@ def conclusion():
         df['citiz_other'] = 1
         df['lang_other'] = 1
 
-    df[f'dl_{driverlicense}'] = 1
+    df[f'dl_{driver_license}'] = 1
     df[f'graf_1_{employment}'] = 1
-    df[f'graf_2_{schedule}'] = 1
+    df[f'graf_2_{shedule}'] = 1
 
-    df['age'] = int(x)/100
-    df['salary'] = int(x)/150000 if x!='' else 0
+    df['age'] = int(age)/100
+    df['salary'] = int(salary)/150000 if salary!='' else 0
 
     educ = new_educ(university)
 
@@ -113,7 +106,7 @@ def conclusion():
 
     df['same_region'] = 1
 
-    df['job_id'] = 1
+    df['job_id'] = job_id
     df['id'] = 1
 
     position = new_exp(position)
@@ -123,15 +116,17 @@ def conclusion():
 
     db = connect_db()
     cursor = db.cursor()
-    cursor.execute(f"SELECT * FROM data_jobs WHERE id={job_id}")
+    cursor.execute(f"SELECT * FROM data_jobs WHERE id={int(job_id)}")
     work = cursor.fetchone()
     name = work[2]
 
     name = new_cat(name)
 
     df[f'job_{name}'] = 1
-
-    return "<h1>0.98</h1>"
+    a = Ai()
+    res = a.predict(df)
+    print(res['cam'].iloc[0])
+    return str(min(res['cam'].iloc[0], 0.99))
 
 @app.route("/work/<work_id>")
 def work(work_id):
