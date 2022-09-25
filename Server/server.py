@@ -117,6 +117,7 @@ def conclusion():
     cursor = db.cursor()
     cursor.execute(f"SELECT * FROM data_jobs WHERE id={job_id}")
     work = cursor.fetchone()
+    name = work[2]
 
     return "<h1>0.98</h1>"
 
