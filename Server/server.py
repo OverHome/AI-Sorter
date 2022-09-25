@@ -14,6 +14,23 @@ app.config.from_object(__name__)
 
 app.config.update(dict(DATABASE=os.path.join(app.root_path, "../DataBase/AISorter.db")))
 
+def new_educ(x):
+    if 'университет' in x.lower() or 'институт' in x.lower():
+        return 'univ'
+    elif any(e in x.lower() for e in ['академия', 'колледж', 'техникум', 'пту', 'училище', 'спец', 'профес']):
+        return 'col'
+    elif 'лицей' in x.lower() or 'школа' in x.lower():
+        return 'sch'
+    else:
+        return 'other'
+
+def new_exp(x):
+    if any(e in str(x).lower() for e in ['водитель', 'экспедит', 'такси', 'курьер', 'перегон']):
+        return 'drive'
+    elif any(e in str(x).lower() for e in ['авто', 'механик', 'инженер', 'техник']):
+        return 'mech'
+    else:
+        return 'other'
 
 @app.route("/")
 def index():
@@ -49,6 +66,11 @@ def conclusion():
     ai = Ai()
     ai.predict()
 
+    db = connect_db()
+    cursor = db.cursor()
+    cursor.execute(f"SELECT * FROM data_jobs WHERE id={job_id}")
+    work = cursor.fetchone()
+
     l = ['sex_1', 'sex_2', 'citiz_other', 'citiz_rf', 'lang_other', 'lang_rus', 'dl_A', 'dl_B', 'dl_C', 'dl_D',
      'graf_1_Change', 'graf_1_Full', 'graf_1_Look-out', 'graf_1_Not full', 'graf_1_Part', 'graf_1_does not matter',
      'graf_2_Flex', 'graf_2_Full', 'graf_2_Project', 'graf_2_Stage', 'graf_2_Volunteering', 'graf_2_does not matter',
@@ -57,6 +79,40 @@ def conclusion():
     data = [0]*len(l)
 
     df = pd.DataFrame(data, columns=l)
+
+    if sex==1:
+        df['sex_1'] = 1
+    else:
+        df['sex_2'] = 1
+
+    if citizenship==1:
+        df['citiz_rf'] = 1
+        df['lang_rus'] = 1
+    else:
+        df['citiz_other'] = 1
+        df['lang_other'] = 1
+
+    df[f'dl_{driverlicense}'] = 1
+    df[f'graf_1_{employment}'] = 1
+    df[f'graf_2_{schedule}'] = 1
+
+    df['age'] = int(x)/100
+    df['salary'] = int(x)/150000 if x!='' else 0
+
+    educ = new_educ(university)
+
+    df[f'educ_{educ}'] = 1
+
+    df['same_region'] = 1
+
+    df['job_id'] = 1
+    df['id'] = 1
+
+    position = new_exp(position)
+
+    if position != 'other':
+        df[position] = (int(fromyear) - int(toyear))*12
+
     db = connect_db()
     cursor = db.cursor()
     cursor.execute(f"SELECT * FROM data_jobs WHERE id={job_id}")
