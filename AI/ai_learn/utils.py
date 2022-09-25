@@ -263,6 +263,6 @@ def preprocess_test_data(df, jobs, educ, work):
         merge_new = pd.concat([merge_new, tmp])
 
     merge = pd.merge(merge_new, jobs, on='job_id')
-    merge.drop(['region_x', 'region_y', 'id', 'job_id'], axis=1, inplace=True)
+    merge.drop(['region_x', 'region_y', 'id'], axis=1, inplace=True)
     merge.fillna(0, inplace=True)
     return merge
