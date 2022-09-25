@@ -1,8 +1,9 @@
-from crypt import methods
+import numpy as np
+import pandas as pd
 import os
 from flask import Flask, render_template, redirect, request
 import sqlite3
-#from AI.model import Ai
+from AI.model import Ai
 
 DATABASE = "/tmp/AISorter.db"
 DEBUG = True
@@ -24,7 +25,6 @@ def index():
 
 @app.route("/conclusion/", methods=["POST"])
 def conclusion():
-
     sex = request.form["sex"]
     citizenship = request.form["citizenship"]
     age = request.form["age"]
@@ -46,9 +46,21 @@ def conclusion():
     position = request.form["position"]
     fromyear = request.form["fromyear"]
     toyear = request.form["toyear"]
+    ai = Ai()
+    ai.predict()
 
-    #ai = Ai()
-    #ai.predict()
+    l = ['sex_1', 'sex_2', 'citiz_other', 'citiz_rf', 'lang_other', 'lang_rus', 'dl_A', 'dl_B', 'dl_C', 'dl_D',
+     'graf_1_Change', 'graf_1_Full', 'graf_1_Look-out', 'graf_1_Not full', 'graf_1_Part', 'graf_1_does not matter',
+     'graf_2_Flex', 'graf_2_Full', 'graf_2_Project', 'graf_2_Stage', 'graf_2_Volunteering', 'graf_2_does not matter',
+     'age', 'salary', 'educ_col', 'educ_other', 'educ_sch', 'educ_univ', 'drive', 'mech', 'job_B', 'job_C', 'job_D',
+     'same_region', 'id', 'job_id']
+    data = [0]*len(l)
+
+    df = pd.DataFrame(data, columns=l)
+    db = connect_db()
+    cursor = db.cursor()
+    cursor.execute(f"SELECT * FROM data_jobs WHERE id={job_id}")
+    work = cursor.fetchone()
 
     return "<h1>0.98</h1>"
 
