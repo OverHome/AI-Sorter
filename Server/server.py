@@ -32,6 +32,14 @@ def new_exp(x):
     else:
         return 'other'
 
+def new_cat(x):
+    if 'автобус' in name:
+        return 'D'
+    elif 'экспед' in name or 'груз' in name or 'фур' in name:
+        return 'C'
+    if 'водитель' in name and (ans == '' or ans == 'E'):
+        return 'B'
+
 @app.route("/")
 def index():
     db = connect_db()
@@ -118,6 +126,10 @@ def conclusion():
     cursor.execute(f"SELECT * FROM data_jobs WHERE id={job_id}")
     work = cursor.fetchone()
     name = work[2]
+
+    name = new_cat(name)
+
+    df[f'job_{name}'] = 1
 
     return "<h1>0.98</h1>"
 
